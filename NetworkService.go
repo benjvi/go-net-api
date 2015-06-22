@@ -485,3 +485,97 @@ type Network struct {
 	Zoneid      string `json:"zoneid,omitempty"`
 	Zonename    string `json:"zonename,omitempty"`
 }
+
+type ModifyNetworkParams struct {
+	p map[string]interface{}
+}
+
+func (p *ModifyNetworkParams) toURLValues() url.Values {
+	u := url.Values{}
+	if p.p == nil {
+		return u
+	}
+	// NetAPI specific
+	if v, found := p.p["id"]; found {
+		u.Set("id", v.(string))
+	}
+	// Cloudstack params
+	if v, found := p.p["cidr"]; found {
+		u.Set("cidr", v.(string))
+	}
+	if v, found := p.p["gateway"]; found {
+		u.Set("gateway", v.(string))
+	}
+	if v, found := p.p["displaytext"]; found {
+		u.Set("displaytext", v.(string))
+	}
+	return u
+}
+
+func (p *ModifyNetworkParams) SetId(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["id"] = v
+	return
+}
+
+func (p *ModifyNetworkParams) SetCidr(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["cidr"] = v
+	return
+}
+
+func (p *ModifyNetworkParams) SetGateway(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["gateway"] = v
+	return
+}
+
+func (p *ModifyNetworkParams) SetDisplaytext(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["displaytext"] = v
+	return
+}
+
+// You should always use this function to get a new ListNetworksParams instance,
+// as then you are sure you have configured all required params
+func (s *NetworkService) NewModifyNetworkParams(id string) *ModifyNetworkParams {
+	p := &ModifyNetworkParams{}
+	p.p = make(map[string]interface{})
+	p.SetId(id)
+	return p
+}
+
+// Lists all available networks.
+func (s *NetworkService) ModifyNetwork(p *ModifyNetworkParams) (*ModifyNetworkResponse, error) {
+	resp, err := s.cs.newRequest("modifyNetwork", p.toURLValues())
+	if err != nil {
+		return nil, err
+	}
+
+	var r ModifyNetworkResponse
+	if err := json.Unmarshal(resp, &r); err != nil {
+		return nil, err
+	}
+	return &r, nil
+}
+
+type ModifyNetworkResponse struct {
+	Count    int        `json:"count"`
+	ListNetworks []*ModifyNetworkResponseEntry `json:"network"`
+}
+
+type ModifyNetworkResponseEntry struct {
+	Id		string	`json:"id"`
+	Originalid	string	`json:"originalid"`
+	Cidr		string	`json:"cidr"`
+	Displaytext	string	`json:"displaytext"`
+	Gateway		string	`json:"gateway"`
+}
