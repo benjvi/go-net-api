@@ -409,7 +409,7 @@ type Network struct {
 	//NetAPI specific fields
 	Dcgfriendlyname string `json:"dcgfriendlyname,omitempty"`
 	Subtype         string `json:"subtype,omitempty"`
-	Isprovisioned   string `json:"isprovisioned,omitempty"`
+	Isprovisioned   bool `json:"isprovisioned,omitempty"`
 	//Cloudstack Network fields
 	Account                     string `json:"account,omitempty"`
         Aclid                       string `json:"aclid,omitempty"`
