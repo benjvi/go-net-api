@@ -75,7 +75,9 @@ func (p *ListDirectConnectGroupsParams) toURLValues() url.Values {
 	if v, found := p.p["name"]; found {
 		u.Set("name", v.(string))
 	}
-
+	if v, found := p.p["id"]; found {
+		u.Set("id", v.(string))
+	}
 	return u
 }
 

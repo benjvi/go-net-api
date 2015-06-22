@@ -2,8 +2,8 @@ package netAPI
 
 import (
 	"fmt"
-	"testing"
 	"os"
+	"testing"
 )
 
 func TestListNetworks(t *testing.T) {

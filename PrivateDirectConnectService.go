@@ -25,15 +25,15 @@ func (p *CreatePrivateDirectConnectParams) toURLValues() url.Values {
 		u.Set("cidr", v.(string))
 	}
 	if v, found := p.p["gateway"]; found {
-                u.Set("gateway", v.(string))
-        }
+		u.Set("gateway", v.(string))
+	}
 	if v, found := p.p["dcgname"]; found {
-                u.Set("dcgname", v.(string))
-        }
+		u.Set("dcgname", v.(string))
+	}
 	if v, found := p.p["dcgid"]; found {
 		vv := strconv.Itoa(v.(int))
-                u.Set("dcgid", vv)
-        }
+		u.Set("dcgid", vv)
+	}
 	return u
 }
 
@@ -62,27 +62,27 @@ func (p *CreatePrivateDirectConnectParams) SetCidr(v string) {
 }
 
 func (p *CreatePrivateDirectConnectParams) SetGateway(v string) {
-        if p.p == nil {
-                p.p = make(map[string]interface{})
-        }
-        p.p["gateway"] = v
-        return
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["gateway"] = v
+	return
 }
 
 func (p *CreatePrivateDirectConnectParams) SetDcgname(v string) {
-        if p.p == nil {
-                p.p = make(map[string]interface{})
-        }
-        p.p["dcgname"] = v
-        return
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["dcgname"] = v
+	return
 }
 
 func (p *CreatePrivateDirectConnectParams) SetDcgid(v int) {
-        if p.p == nil {
-                p.p = make(map[string]interface{})
-        }
-        p.p["dcgid"] = v
-        return
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["dcgid"] = v
+	return
 }
 
 // You should always use this function to get a new params instance,
@@ -113,7 +113,7 @@ func (s *PrivateDirectConnectService) CreatePrivateDirectConnect(p *CreatePrivat
 }
 
 type CreatePrivateDirectConnectResponse struct {
-	Count                    int                               `json:"count"`
+	Count                     int                                `json:"count"`
 	ListPrivateDirectConnects []*CreatePrivateDirectConnectEntry `json:"privatedirectconnect"`
 }
 

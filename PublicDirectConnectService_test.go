@@ -1,4 +1,5 @@
 package netAPI
+
 /*
 import (
 	"fmt"
