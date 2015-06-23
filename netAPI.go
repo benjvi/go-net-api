@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"sort"
 	"strings"
@@ -57,6 +58,35 @@ func NewClient(apiurl string, apikey string, secret string, verifyssl bool) *Net
 	return cs
 }
 
+// we must return the mock server so that we are able to shut it down after we finished using it
+func NewMockServerAndClient(code int, body string) (*httptest.Server, *NetAPIClient) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(code)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintln(w, body)
+	}))
+
+	transport := &http.Transport{
+		Proxy: func(req *http.Request) (*url.URL, error) {
+			return url.Parse(server.URL)
+		},
+	}
+
+	httpClient := &http.Client{Transport: transport}
+	cs := &NetAPIClient{
+                client:  httpClient,
+                baseURL: server.URL,
+                apiKey:  "mockKey",
+                secret:  "mockSecret",
+        }
+        cs.Network = NewNetworkService(cs)
+        cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
+        cs.PublicDirectConnect = NewPublicDirectConnectService(cs)
+        cs.DirectConnectGroup = NewDirectConnectGroupService(cs)
+        return server, cs
+
+}
+
 // Execute the request against a CS API. Will return the raw JSON data returned by the API and nil if
 // no error occured. If the API returns an error the result will be nil and the HTTP error code and CS
 // error details. If a processing (code) error occurs the result will be nil and the generated error
@@ -96,13 +126,13 @@ func (cs *NetAPIClient) newRequest(api string, params url.Values) (json.RawMessa
 	if err != nil {
 		return nil, err
 	}
+	//log.Printf("[DEBUG] Raw JSON response: %s \n", b)
 
 	// Need to get the raw value to make the result play nice
 	b, err = getRawValue(b)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("raw response: %s \n", b)
 
 	if resp.StatusCode != 200 {
 		var e APIError

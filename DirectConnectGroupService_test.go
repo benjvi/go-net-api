@@ -2,13 +2,14 @@ package netAPI
 
 import (
 	"fmt"
-	"os"
 	"testing"
+	"strconv"
 )
 
 func TestListDirectConnectGroups(t *testing.T) {
-	// TODO: read in auth info from environment variables
-	netAPI := NewClient("https://myservices.interoute.com/myservices/api/vdc", os.Getenv("NETAPI_PUBLIC_KEY"), os.Getenv("NETAPI_SECRET_KEY"), false)
+	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroups\": [{\"id\": \"1\", \"name\": \"dcg1\", \"sids\":[\"network1-sid\",\"network2-sid\"], \"networks\": [\"net1\",\"net2\"]}], \"count\": 1}}")
+        defer httpServer.Close()
+
 	p := netAPI.DirectConnectGroup.NewListDirectConnectGroupsParams()
 	r, err := netAPI.DirectConnectGroup.ListDirectConnectGroups(p)
 	if err != nil {
@@ -19,21 +20,19 @@ func TestListDirectConnectGroups(t *testing.T) {
 	if dcgList == nil {
 		t.Error("JSON unmarshalling failed")
 	}
-	for idx, dcg := range dcgList {
-		fmt.Printf("DCG list result %d : %+v", idx+1, dcg)
-		if dcg.Name == "" {
-			t.Error("Empty name found on DCG. Check raw response and unmarshalling.")
-		}
-		if dcg.Id == "" {
-			t.Error("Empty ID found on DCG. Check raw response and unmarshalling.")
-		}
-	}
+	checkStringAttributeValue("id", dcgList[0].Id, "1", t)
+	checkStringAttributeValue("name", dcgList[0].Name, "dcg1", t)
+	checkStringAttributeValue("sid[0]", dcgList[0].Sids[0], "network1-sid", t)
+	checkStringAttributeValue("sid[1]", dcgList[0].Sids[1], "network2-sid", t)
+	checkStringAttributeValue("networks[0]", dcgList[0].Networks[0], "net1", t)
+	checkStringAttributeValue("networks[1]", dcgList[0].Networks[1], "net2", t)
 }
 
-/* Cannot delete DCGs so don't create them automatically :(
 func TestCreateDirectConnectGroup(t *testing.T) {
-	netAPI := NewClient("https://myservices.interoute.com/myservices/api/vdc", os.Getenv("NETAPI_PUBLIC_KEY"), os.Getenv("NETAPI_SECRET_KEY"), false)
-	p := netAPI.DirectConnectGroup.NewCreateDirectConnectGroupParams("gotest-4")
+	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroup\": [{\"id\": 1, \"name\": \"dcg1\"}], \"count\": 1}}")
+        defer httpServer.Close()
+
+	p := netAPI.DirectConnectGroup.NewCreateDirectConnectGroupParams("dcg1")
 	r, err := netAPI.DirectConnectGroup.CreateDirectConnectGroup(p)
 	if err != nil {
 		fmt.Printf("Error creating DCG: %s", err)
@@ -43,21 +42,16 @@ func TestCreateDirectConnectGroup(t *testing.T) {
         if dcgList == nil {
                 t.Error("JSON unmarshalling failed")
         }
-        for idx, dcg := range dcgList {
-                fmt.Printf("Created DCG %d : %+v", idx+1, dcg)
-                if dcg.Name == "" {
-                        t.Error("Empty name found on DCG. Check raw response and unmarshalling.")
-                }
-                if dcg.Id == 0 {
-                        t.Error("Empty ID found on DCG. Check raw response and unmarshalling.")
-                }
-        }
+        checkStringAttributeValue("id", strconv.FormatInt(dcgList[0].Id, 10), "1", t)
+	checkStringAttributeValue("name", dcgList[0].Name, "dcg1", t)
 }
-*/
 
-func TestUpdateDirectConnectGroup(t *testing.T) {
-	netAPI := NewClient("https://myservices.interoute.com/myservices/api/vdc", os.Getenv("NETAPI_PUBLIC_KEY"), os.Getenv("NETAPI_SECRET_KEY"), false)
-	p := netAPI.DirectConnectGroup.NewUpdateDirectConnectGroupParams("goupdate-test2", "goupdate-test")
+
+func TestRenameDirectConnectGroup(t *testing.T) {
+	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroup\": [{\"id\": \"1\", \"name\": \"dcg-renamed\"}], \"count\": 1}}")
+        defer httpServer.Close()
+
+	p := netAPI.DirectConnectGroup.NewUpdateDirectConnectGroupParams("dcg-orig", "dcg-renamed")
 	r, err := netAPI.DirectConnectGroup.UpdateDirectConnectGroup(p)
 	if err != nil {
 		fmt.Printf("Error updating DCG: %s", err)
@@ -67,17 +61,7 @@ func TestUpdateDirectConnectGroup(t *testing.T) {
 	if dcgList == nil {
 		t.Error("JSON unmarshalling failed")
 	}
-	for idx, dcg := range dcgList {
-		fmt.Printf("Updated DCG %d : %+v", idx+1, dcg)
-		if dcg.Name == "" {
-			t.Error("Empty name found on DCG. Check raw response and unmarshalling.")
-		}
-		if dcg.Id == "" {
-			t.Error("Empty ID found on DCG. Check raw response and unmarshalling.")
-		}
-	}
+	checkStringAttributeValue("id", dcgList[0].Id, "1", t)
+	checkStringAttributeValue("name", dcgList[0].Name, "dcg-renamed", t)
 
-	// Succeeded so we need to put back the original values for the next run
-	p = netAPI.DirectConnectGroup.NewUpdateDirectConnectGroupParams("goupdate-test", "goupdate-test2")
-	netAPI.DirectConnectGroup.UpdateDirectConnectGroup(p)
 }

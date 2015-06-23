@@ -1,15 +1,15 @@
 package netAPI
 
-/*
+
 import (
 	"fmt"
 	"testing"
-	"os"
 )
 
- no automated creations because we can't delete :(
 func TestCreatePrivateDirectConnect(t *testing.T) {
-	netAPI := NewClient("https://myservices.interoute.com/myservices/api/vdc", os.Getenv("NETAPI_PUBLIC_KEY"), os.Getenv("NETAPI_SECRET_KEY"), false)
+	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"privatedirectconnect\": [{\"id\": \"4d22713a-0709-49e1-aae9-bc965471e442\", \"routerendpoint2\": \"10.0.25.3\", \"zoneid\": \"5343ddc2-919f-4d1b-a8e6-59f91d901f8e\", \"gateway\": \"10.0.25.1\", \"domainid\": \"38175F38-0755-4C3F-9E17-D83B8B42D7CE\", \"vlan\": \"61\", \"routerendpoint1\": \"10.0.25.2\", \"cidr\": \"10.0.25.0/24\", \"name\": \"Network Private Direct Connect Interoute cstore test 1\", \"sid\": \"INT38/IPVPN/pLC0dsDg\", \"zonename\": \"Slough\"}], \"count\": 1}}")
+	defer httpServer.Close()
+
 	p := netAPI.PrivateDirectConnect.NewCreatePrivateDirectConnectParams("govpntest", "Slough", "10.0.25.0/24", "10.0.25.1")
 	p.SetDcgname("gotest")
 	r, err := netAPI.PrivateDirectConnect.CreatePrivateDirectConnect(p)
@@ -21,17 +21,14 @@ func TestCreatePrivateDirectConnect(t *testing.T) {
 	if pdcList == nil {
 		t.Error("JSON unmarshalling failed")
 	}
-	for idx, pdc := range pdcList {
-		fmt.Printf("Created PDC %d : %+v", idx+1, pdc)
-		checkStringAttribute("gateway", pdc.Gateway, t)
-		checkStringAttribute("sid", pdc.Sid, t)
-		checkStringAttribute("zonename", pdc.Zonename, t)
-		checkStringAttribute("zoneid", pdc.Zoneid, t)
-		checkStringAttribute("domainid", pdc.Domainid, t)
-		checkStringAttribute("cidr", pdc.Cidr, t)
-		checkStringAttribute("id", pdc.Id, t)
-		checkStringAttribute("vlan", pdc.Vlan, t)
-		checkStringAttribute("routerendpoint1", pdc.Routerendpoint1, t)
-		checkStringAttribute("routerendpoint2", pdc.Routerendpoint2, t)
-	}
-}*/
+	checkStringAttributeValue("gateway", pdcList[0].Gateway, "10.0.25.1", t)
+	checkStringAttributeValue("sid", pdcList[0].Sid, "INT38/IPVPN/pLC0dsDg", t)
+	checkStringAttributeValue("zonename", pdcList[0].Zonename, "Slough", t)
+	checkStringAttributeValue("zoneid", pdcList[0].Zoneid, "5343ddc2-919f-4d1b-a8e6-59f91d901f8e", t)
+	checkStringAttributeValue("domainid", pdcList[0].Domainid, "38175F38-0755-4C3F-9E17-D83B8B42D7CE", t)
+	checkStringAttributeValue("cidr", pdcList[0].Cidr, "10.0.25.0/24", t)
+	checkStringAttributeValue("id", pdcList[0].Id, "4d22713a-0709-49e1-aae9-bc965471e442", t)
+	checkStringAttributeValue("vlan", pdcList[0].Vlan, "61", t)
+	checkStringAttributeValue("routerendpoint1", pdcList[0].Routerendpoint1, "10.0.25.2", t)
+	checkStringAttributeValue("routerendpoint2", pdcList[0].Routerendpoint2, "10.0.25.3", t)
+}
