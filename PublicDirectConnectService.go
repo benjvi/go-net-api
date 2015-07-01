@@ -25,6 +25,9 @@ func (p *CreatePublicDirectConnectParams) toURLValues() url.Values {
 		vv := strconv.Itoa(v.(int))
 		u.Set("suffix", vv)
 	}
+	if v, found := p.p["region"]; found {
+		u.Set("region", v.(string))
+	}
 	return u
 }
 
@@ -52,14 +55,23 @@ func (p *CreatePublicDirectConnectParams) SetSuffix(v int) {
 	return
 }
 
+func (p *CreatePublicDirectConnectParams) SetRegion(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["region"] = v
+	return
+}
+
 // You should always use this function to get a new params instance,
 // as then you are sure you have configured all required params
-func (s *PublicDirectConnectService) NewCreatePublicDirectConnectParams(displaytext, zonename string, suffix int) *CreatePublicDirectConnectParams {
+func (s *PublicDirectConnectService) NewCreatePublicDirectConnectParams(displaytext, zonename, region string, suffix int) *CreatePublicDirectConnectParams {
 	p := &CreatePublicDirectConnectParams{}
 	p.p = make(map[string]interface{})
 	p.SetDisplaytext(displaytext)
 	p.SetZonename(zonename)
 	p.SetSuffix(suffix)
+	p.SetRegion(region)
 	return p
 }
 

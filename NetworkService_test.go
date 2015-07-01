@@ -10,7 +10,7 @@ func TestListNetworks(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"network\": [{\"id\": \"1\", \"name\": \"network1\", \"displaytext\": \"network1-text\", \"cidr\": \"192.168.34.0/24\", \"dcgfriendlyname\":\"mydcg\", \"gateway\": \"192.168.34.1\"}], \"count\": 1}}")
         defer httpServer.Close()
 
-	p := netAPI.Network.NewListNetworksParams()
+	p := netAPI.Network.NewListNetworksParams("europe")
 	r, err := netAPI.Network.ListNetworks(p)
 	if err != nil {
 		t.Error(fmt.Sprintf("Error getting list networks: %s\n", err))
@@ -29,12 +29,43 @@ func TestListNetworks(t *testing.T) {
 	checkStringAttributeValue("gateway", networks[0].Gateway, "192.168.34.1", t)
 }
 
+// cannot query directly by displaytext so check filtering logic works
+func TestListNetworksByDisplaytext(t *testing.T) {
+	 httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"network\": [{\"id\": \"1\", \"name\": \"network1\", \"displaytext\": \"network1-text\", \"cidr\": \"192.168.34.0/24\", \"dcgfriendlyname\":\"mydcg\", \"gateway\": \"192.168.34.1\"}, {\"id\": \"2\", \"name\": \"network2\", \"displaytext\": \"network2-text\", \"cidr\": \"192.168.34.0/24\", \"dcgfriendlyname\":\"mydcg\", \"gateway\": \"192.168.34.1\"}], \"count\": 2}}")
+        defer httpServer.Close()
+
+        p := netAPI.Network.NewListNetworksParams("europe")
+        r, err := netAPI.Network.ListNetworks(p)
+        if err != nil {
+                t.Error(fmt.Sprintf("Error getting list networks: %s\n", err))
+        }
+
+        networks := r.Networks
+        if networks == nil {
+                t.Error("Error unmarshalling JSON into list\n")
+        }
+
+	fr := make([]*Network, 0, len(r.Networks))
+        for _, val := range r.Networks {
+                t.Logf("Network displaytext: %s", val.Displaytext)
+		if val.Displaytext == "network2-text" {
+			fr = append(fr, val)
+		}
+        }
+	for _, val := range fr {
+		t.Logf("Network with matching displaytext: %+v", val)
+	}
+	if len(fr) != 1 {
+		t.Error("List has the wrong size: %d", len(fr))
+	}
+}
+
 // testing query for IPACs - duplicated unmarshalling test
 func TestListIPACs(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"network\": [{\"id\": \"1\", \"name\": \"ipac1\"}], \"count\": 1}}")
         defer httpServer.Close()
 
-	p := netAPI.Network.NewListNetworksParams()
+	p := netAPI.Network.NewListNetworksParams("europe")
 	p.SetSubtype("publicdirectconnect")
 
 	r, err := netAPI.Network.ListNetworks(p)
@@ -55,7 +86,7 @@ func TestListVPNs(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\":{\"network\": [{\"id\": \"1\", \"name\": \"vpn1\"}], \"count\": 1}}") 
         defer httpServer.Close()
 
-	p := netAPI.Network.NewListNetworksParams()
+	p := netAPI.Network.NewListNetworksParams("europe")
 	p.SetSubtype("privatedirectconnect")
 
 	r, err := netAPI.Network.ListNetworks(p)
@@ -75,7 +106,7 @@ func TestRenameVPNs(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"network\": [{\"id\": \"1\", \"displaytext\": \"renamed-vpn\"}], \"count\": 1}}")
         defer httpServer.Close()
 
-	p := netAPI.Network.NewModifyNetworkParams("1")
+	p := netAPI.Network.NewModifyNetworkParams("1", "europe")
 	p.SetDisplaytext("renamed-vpn")
 
 	r, err := netAPI.Network.ModifyNetwork(p)
@@ -97,7 +128,7 @@ func TestChangeVPNGatewayAndCidr(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"network\": [{\"id\": \"2\", \"originalid\": \"1\", \"cidr\": \"10.0.8.0/24\", \"gateway\": \"10.0.28.1\"}], \"count\": 1}}")
         defer httpServer.Close()
 
-	p := netAPI.Network.NewModifyNetworkParams("1")
+	p := netAPI.Network.NewModifyNetworkParams("1", "europe")
 	p.SetCidr("10.0.28.0/24")
 	p.SetGateway("10.0.28.1")
 

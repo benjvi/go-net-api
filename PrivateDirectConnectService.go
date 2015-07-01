@@ -34,6 +34,9 @@ func (p *CreatePrivateDirectConnectParams) toURLValues() url.Values {
 		vv := strconv.Itoa(v.(int))
 		u.Set("dcgid", vv)
 	}
+	if v, found := p.p["region"]; found {
+		u.Set("region", v.(string))
+	}
 	return u
 }
 
@@ -85,15 +88,24 @@ func (p *CreatePrivateDirectConnectParams) SetDcgid(v int) {
 	return
 }
 
+func (p *CreatePrivateDirectConnectParams) SetRegion(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["region"] = v
+	return
+}
+
 // You should always use this function to get a new params instance,
 // as then you are sure you have configured all required params
-func (s *PrivateDirectConnectService) NewCreatePrivateDirectConnectParams(displaytext, zonename, cidr, gateway string) *CreatePrivateDirectConnectParams {
+func (s *PrivateDirectConnectService) NewCreatePrivateDirectConnectParams(displaytext, zonename, cidr, gateway, region string) *CreatePrivateDirectConnectParams {
 	p := &CreatePrivateDirectConnectParams{}
 	p.p = make(map[string]interface{})
 	p.SetDisplaytext(displaytext)
 	p.SetZonename(zonename)
 	p.SetCidr(cidr)
 	p.SetGateway(gateway)
+	p.SetRegion(region)
 	return p
 }
 

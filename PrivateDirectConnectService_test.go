@@ -10,7 +10,7 @@ func TestCreatePrivateDirectConnect(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"privatedirectconnect\": [{\"id\": \"4d22713a-0709-49e1-aae9-bc965471e442\", \"routerendpoint2\": \"10.0.25.3\", \"zoneid\": \"5343ddc2-919f-4d1b-a8e6-59f91d901f8e\", \"gateway\": \"10.0.25.1\", \"domainid\": \"38175F38-0755-4C3F-9E17-D83B8B42D7CE\", \"vlan\": \"61\", \"routerendpoint1\": \"10.0.25.2\", \"cidr\": \"10.0.25.0/24\", \"name\": \"Network Private Direct Connect Interoute cstore test 1\", \"sid\": \"INT38/IPVPN/pLC0dsDg\", \"zonename\": \"Slough\"}], \"count\": 1}}")
 	defer httpServer.Close()
 
-	p := netAPI.PrivateDirectConnect.NewCreatePrivateDirectConnectParams("govpntest", "Slough", "10.0.25.0/24", "10.0.25.1")
+	p := netAPI.PrivateDirectConnect.NewCreatePrivateDirectConnectParams("govpntest", "Slough", "10.0.25.0/24", "10.0.25.1", "europe")
 	p.SetDcgname("gotest")
 	r, err := netAPI.PrivateDirectConnect.CreatePrivateDirectConnect(p)
 	if err != nil {

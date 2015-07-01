@@ -21,6 +21,9 @@ func (p *ListNetworksParams) toURLValues() url.Values {
 	if v, found := p.p["subtype"]; found {
 		u.Set("subtype", v.(string))
 	}
+	if v, found := p.p["region"]; found {
+		u.Set("region", v.(string))
+	}
 	// Cloudstack params
 	if v, found := p.p["account"]; found {
 		u.Set("account", v.(string))
@@ -112,6 +115,14 @@ func (p *ListNetworksParams) SetSubtype(v string) {
 		p.p = make(map[string]interface{})
 	}
 	p.p["subtype"] = v
+	return
+}
+
+func (p *ListNetworksParams) SetRegion(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["region"] = v
 	return
 }
 
@@ -294,18 +305,20 @@ func (p *ListNetworksParams) SetZoneid(v string) {
 
 // You should always use this function to get a new ListNetworksParams instance,
 // as then you are sure you have configured all required params
-func (s *NetworkService) NewListNetworksParams() *ListNetworksParams {
+func (s *NetworkService) NewListNetworksParams(region string) *ListNetworksParams {
 	p := &ListNetworksParams{}
 	p.p = make(map[string]interface{})
+	p.SetRegion(region)
 	return p
 }
 
 // This is a courtesy helper function, which in some cases may not work as expected!
-func (s *NetworkService) GetNetworkID(keyword string) (string, error) {
+func (s *NetworkService) GetNetworkID(keyword, region string) (string, error) {
 	p := &ListNetworksParams{}
 	p.p = make(map[string]interface{})
 
 	p.p["keyword"] = keyword
+	p.p["region"] = region
 
 	l, err := s.ListNetworks(p)
 	if err != nil {
@@ -331,13 +344,13 @@ func (s *NetworkService) GetNetworkID(keyword string) (string, error) {
 }
 
 // This is a courtesy helper function, which in some cases may not work as expected!
-func (s *NetworkService) GetNetworkByName(name string) (*Network, int, error) {
-	id, err := s.GetNetworkID(name)
+func (s *NetworkService) GetNetworkByName(name, region string) (*Network, int, error) {
+	id, err := s.GetNetworkID(name, region)
 	if err != nil {
 		return nil, -1, err
 	}
 
-	r, count, err := s.GetNetworkByID(id)
+	r, count, err := s.GetNetworkByID(id, region)
 	if err != nil {
 		return nil, count, err
 	}
@@ -345,11 +358,12 @@ func (s *NetworkService) GetNetworkByName(name string) (*Network, int, error) {
 }
 
 // This is a courtesy helper function, which in some cases may not work as expected!
-func (s *NetworkService) GetNetworkByID(id string) (*Network, int, error) {
+func (s *NetworkService) GetNetworkByID(id, region string) (*Network, int, error) {
 	p := &ListNetworksParams{}
 	p.p = make(map[string]interface{})
 
 	p.p["id"] = id
+	p.p["region"] = region
 
 	l, err := s.ListNetworks(p)
 	if err != nil {
@@ -499,6 +513,9 @@ func (p *ModifyNetworkParams) toURLValues() url.Values {
 	if v, found := p.p["id"]; found {
 		u.Set("id", v.(string))
 	}
+	if v, found := p.p["region"]; found {
+		u.Set("region", v.(string))
+	}
 	// Cloudstack params
 	if v, found := p.p["cidr"]; found {
 		u.Set("cidr", v.(string))
@@ -544,12 +561,21 @@ func (p *ModifyNetworkParams) SetDisplaytext(v string) {
 	return
 }
 
+func (p *ModifyNetworkParams) SetRegion(v string) {
+	if p.p == nil {
+		p.p = make(map[string]interface{})
+	}
+	p.p["region"] = v
+	return
+}
+
 // You should always use this function to get a new ListNetworksParams instance,
 // as then you are sure you have configured all required params
-func (s *NetworkService) NewModifyNetworkParams(id string) *ModifyNetworkParams {
+func (s *NetworkService) NewModifyNetworkParams(id, region string) *ModifyNetworkParams {
 	p := &ModifyNetworkParams{}
 	p.p = make(map[string]interface{})
 	p.SetId(id)
+	p.SetRegion(region)
 	return p
 }
 

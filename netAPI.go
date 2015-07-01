@@ -29,8 +29,9 @@ func (e *APIError) Error() error {
 type NetAPIClient struct {
 	client  *http.Client // The http client for communicating
 	baseURL string       // The base URL of the API
-	apiKey  string       // Api key
-	secret  string       // Secret key
+	apiKey  string       // Root api key
+	secret  string       // Root secret key
+	acronym string	     // Account acronym for the account that we will deploy into
 
 	Network              *NetworkService
 	PrivateDirectConnect *PrivateDirectConnectService
@@ -39,7 +40,7 @@ type NetAPIClient struct {
 }
 
 // Creates a new client for communicating with Net API
-func NewClient(apiurl string, apikey string, secret string, verifyssl bool) *NetAPIClient {
+func NewClient(apiurl, apikey, secret, acronym string, verifyssl bool) *NetAPIClient {
 	cs := &NetAPIClient{
 		client: &http.Client{
 			Transport: &http.Transport{
@@ -50,6 +51,7 @@ func NewClient(apiurl string, apikey string, secret string, verifyssl bool) *Net
 		baseURL: apiurl,
 		apiKey:  apikey,
 		secret:  secret,
+		acronym: acronym,
 	}
 	cs.Network = NewNetworkService(cs)
 	cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
@@ -78,6 +80,7 @@ func NewMockServerAndClient(code int, body string) (*httptest.Server, *NetAPICli
                 baseURL: server.URL,
                 apiKey:  "mockKey",
                 secret:  "mockSecret",
+		acronym: "MOCKA",
         }
         cs.Network = NewNetworkService(cs)
         cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
@@ -94,6 +97,7 @@ func (cs *NetAPIClient) newRequest(api string, params url.Values) (json.RawMessa
 	params.Set("apiKey", cs.apiKey)
 	params.Set("command", api)
 	params.Set("response", "json")
+	params.Set("acronym", cs.acronym)
 
 	// Generate signature for API call
 	// * Serialize parameters, URL encoding only values and sort them by key, done by encodeValues
