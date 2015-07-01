@@ -2,13 +2,13 @@ package netAPI
 
 import (
 	"fmt"
-	"testing"
 	"strconv"
+	"testing"
 )
 
 func TestListDirectConnectGroups(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroups\": [{\"id\": \"1\", \"name\": \"dcg1\", \"sids\":[\"network1-sid\",\"network2-sid\"], \"networks\": [\"net1\",\"net2\"]}], \"count\": 1}}")
-        defer httpServer.Close()
+	defer httpServer.Close()
 
 	p := netAPI.DirectConnectGroup.NewListDirectConnectGroupsParams()
 	r, err := netAPI.DirectConnectGroup.ListDirectConnectGroups(p)
@@ -30,7 +30,7 @@ func TestListDirectConnectGroups(t *testing.T) {
 
 func TestCreateDirectConnectGroup(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroup\": [{\"id\": 1, \"name\": \"dcg1\"}], \"count\": 1}}")
-        defer httpServer.Close()
+	defer httpServer.Close()
 
 	p := netAPI.DirectConnectGroup.NewCreateDirectConnectGroupParams("dcg1")
 	r, err := netAPI.DirectConnectGroup.CreateDirectConnectGroup(p)
@@ -39,17 +39,16 @@ func TestCreateDirectConnectGroup(t *testing.T) {
 	}
 
 	dcgList := r.ListDirectConnectGroups
-        if dcgList == nil {
-                t.Error("JSON unmarshalling failed")
-        }
-        checkStringAttributeValue("id", strconv.FormatInt(dcgList[0].Id, 10), "1", t)
+	if dcgList == nil {
+		t.Error("JSON unmarshalling failed")
+	}
+	checkStringAttributeValue("id", strconv.FormatInt(dcgList[0].Id, 10), "1", t)
 	checkStringAttributeValue("name", dcgList[0].Name, "dcg1", t)
 }
 
-
 func TestRenameDirectConnectGroup(t *testing.T) {
 	httpServer, netAPI := NewMockServerAndClient(200, "{\"response\": {\"directconnectgroup\": [{\"id\": \"1\", \"name\": \"dcg-renamed\"}], \"count\": 1}}")
-        defer httpServer.Close()
+	defer httpServer.Close()
 
 	p := netAPI.DirectConnectGroup.NewUpdateDirectConnectGroupParams("dcg-orig", "dcg-renamed")
 	r, err := netAPI.DirectConnectGroup.UpdateDirectConnectGroup(p)

@@ -594,14 +594,14 @@ func (s *NetworkService) ModifyNetwork(p *ModifyNetworkParams) (*ModifyNetworkRe
 }
 
 type ModifyNetworkResponse struct {
-	Count    int        `json:"count"`
+	Count        int                           `json:"count"`
 	ListNetworks []*ModifyNetworkResponseEntry `json:"network"`
 }
 
 type ModifyNetworkResponseEntry struct {
-	Id		string	`json:"id"`
-	Originalid	string	`json:"originalid"`
-	Cidr		string	`json:"cidr"`
-	Displaytext	string	`json:"displaytext"`
-	Gateway		string	`json:"gateway"`
+	Id          string `json:"id"`
+	Originalid  string `json:"originalid"`
+	Cidr        string `json:"cidr"`
+	Displaytext string `json:"displaytext"`
+	Gateway     string `json:"gateway"`
 }

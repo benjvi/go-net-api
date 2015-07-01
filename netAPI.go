@@ -31,7 +31,7 @@ type NetAPIClient struct {
 	baseURL string       // The base URL of the API
 	apiKey  string       // Root api key
 	secret  string       // Root secret key
-	acronym string	     // Account acronym for the account that we will deploy into
+	acronym string       // Account acronym for the account that we will deploy into
 
 	Network              *NetworkService
 	PrivateDirectConnect *PrivateDirectConnectService
@@ -76,17 +76,17 @@ func NewMockServerAndClient(code int, body string) (*httptest.Server, *NetAPICli
 
 	httpClient := &http.Client{Transport: transport}
 	cs := &NetAPIClient{
-                client:  httpClient,
-                baseURL: server.URL,
-                apiKey:  "mockKey",
-                secret:  "mockSecret",
+		client:  httpClient,
+		baseURL: server.URL,
+		apiKey:  "mockKey",
+		secret:  "mockSecret",
 		acronym: "MOCKA",
-        }
-        cs.Network = NewNetworkService(cs)
-        cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
-        cs.PublicDirectConnect = NewPublicDirectConnectService(cs)
-        cs.DirectConnectGroup = NewDirectConnectGroupService(cs)
-        return server, cs
+	}
+	cs.Network = NewNetworkService(cs)
+	cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
+	cs.PublicDirectConnect = NewPublicDirectConnectService(cs)
+	cs.DirectConnectGroup = NewDirectConnectGroupService(cs)
+	return server, cs
 
 }
 
@@ -97,7 +97,10 @@ func (cs *NetAPIClient) newRequest(api string, params url.Values) (json.RawMessa
 	params.Set("apiKey", cs.apiKey)
 	params.Set("command", api)
 	params.Set("response", "json")
-	params.Set("acronym", cs.acronym)
+	// acronym is optional - req for root key but not for myservices key
+	if cs.acronym != "" {
+		params.Set("acronym", cs.acronym)
+	}
 
 	// Generate signature for API call
 	// * Serialize parameters, URL encoding only values and sort them by key, done by encodeValues

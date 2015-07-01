@@ -1,6 +1,5 @@
 package netAPI
 
-
 import (
 	"fmt"
 	"testing"
