@@ -27,11 +27,12 @@ func (e *APIError) Error() error {
 }
 
 type NetAPIClient struct {
-	client  *http.Client // The http client for communicating
-	baseURL string       // The base URL of the API
-	apiKey  string       // Root api key
-	secret  string       // Root secret key
-	acronym string       // Account acronym for the account that we will deploy into
+	client   *http.Client // The http client for communicating
+	baseURL  string       // The base URL of the API
+	apiKey   string       // Root api key
+	secret   string       // Root secret key
+	acronym  string       // Account acronym for the account that we will deploy into
+	domainid string       // Disambiuating domainid for accounts with multiple domainds, mandatory with acronym
 
 	Network              *NetworkService
 	PrivateDirectConnect *PrivateDirectConnectService
@@ -40,7 +41,7 @@ type NetAPIClient struct {
 }
 
 // Creates a new client for communicating with Net API
-func NewClient(apiurl, apikey, secret, acronym string, verifyssl bool) *NetAPIClient {
+func NewClient(apiurl, apikey, secret, acronym, domainid string, verifyssl bool) *NetAPIClient {
 	cs := &NetAPIClient{
 		client: &http.Client{
 			Transport: &http.Transport{
@@ -48,10 +49,11 @@ func NewClient(apiurl, apikey, secret, acronym string, verifyssl bool) *NetAPICl
 				TLSClientConfig: &tls.Config{InsecureSkipVerify: !verifyssl}, // If verifyssl is true, skipping the verify should be false and vice versa
 			},
 		},
-		baseURL: apiurl,
-		apiKey:  apikey,
-		secret:  secret,
-		acronym: acronym,
+		baseURL:  apiurl,
+		apiKey:   apikey,
+		secret:   secret,
+		acronym:  acronym,
+		domainid: domainid,
 	}
 	cs.Network = NewNetworkService(cs)
 	cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
@@ -76,11 +78,12 @@ func NewMockServerAndClient(code int, body string) (*httptest.Server, *NetAPICli
 
 	httpClient := &http.Client{Transport: transport}
 	cs := &NetAPIClient{
-		client:  httpClient,
-		baseURL: server.URL,
-		apiKey:  "mockKey",
-		secret:  "mockSecret",
-		acronym: "MOCKA",
+		client:   httpClient,
+		baseURL:  server.URL,
+		apiKey:   "mockKey",
+		secret:   "mockSecret",
+		acronym:  "MOCKA",
+		domainid: "MOCKDID",
 	}
 	cs.Network = NewNetworkService(cs)
 	cs.PrivateDirectConnect = NewPrivateDirectConnectService(cs)
@@ -100,6 +103,8 @@ func (cs *NetAPIClient) newRequest(api string, params url.Values) (json.RawMessa
 	// acronym is optional - req for root key but not for myservices key
 	if cs.acronym != "" {
 		params.Set("acronym", cs.acronym)
+		// domainid must be present when the acronym is
+		params.Set("domainid", cs.domainid)
 	}
 
 	// Generate signature for API call
